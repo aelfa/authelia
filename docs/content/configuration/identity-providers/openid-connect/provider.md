@@ -100,6 +100,7 @@ identity_providers:
         id_token_audience_mode: 'specification'
         custom_claims:
           claim_name:
+            name: 'claim_name'
             attribute: 'attribute_name'
     scopes:
       scope_name:
@@ -393,7 +394,9 @@ available are distinctly and intentionally different to those of the
 [Access Control Rules](../../security/access-control.md#rules) unless explicitly specified in this section. The reasons
 for the differences are clearly explained in the
 [OpenID Connect 1.0 FAQ](../../../integration/openid-connect/frequently-asked-questions.md#why-doesnt-the-access-control-configuration-work-with-openid-connect-10)
-and [ADR1](../../../reference/architecture-decision-log/1.md).
+and [ADR1](../../../reference/architecture-decision-log/1.md). These policies specifically apply solely to Authorization Requests and
+should not be used as a crutch for applications which do not implement the most basic
+level of access control on their end.
 {{< /callout >}}
 
 The authorization policies section allows creating custom authorization policies which can be applied to clients. This
@@ -595,6 +598,18 @@ The keys under `claims_policies` is an arbitrary value that can be used in the
 
 {{< confkey type="list(string)" required="no" >}}
 
+{{< callout context="danger" title="Security Notice" icon="outline/alert-octagon" >}}
+This option is a escape hatch which should not normally be used. It allows confidential personally identifiable
+information to be hydrated into the ID Token which is not normally encrypted. In addition this behaviour is only
+necessary for clients which do not actually support OpenID Connect 1.0 and indicates a significant bug with the client.
+
+This also is a common indicator that the client uses claims other than `iss` and `sub` to link users with the provider,
+which is a fairly significant security issue.
+
+For these reasons this option is highly discouraged and it's recommended the client in question fixes this significant
+bug instead. This option is provided only on a best effort basis
+{{< /callout >}}
+
 The list of claims automatically copied to the ID Token in addition to the standard ID Token claims provided the
 relevant scope was granted.
 
@@ -633,13 +648,19 @@ The list of claims available in this policy in addition to the standard claims. 
 which can either be concrete attributes from the [first factor](../../first-factor/introduction.md) backend or can be
 those defined via [definitions](../../definitions/user-attributes.md).
 
-The keys under `custom_claims` are arbitrary values which are the names of the claims.
+The keys under `custom_claims` are arbitrary values, and by default are the claim name and attribute values.
+
+##### name
+
+{{< confkey type="string" required="no" >}}
+
+The claim name for this claim. By default it's the same as the dictionary key.
 
 ##### attribute
 
 {{< confkey type="string" required="no" >}}
 
-The attribute name that this claim returns. By default it's the same as the claim name.
+The attribute name that this claim returns. By default it's the same as the dictionary key.
 
 ### scopes
 

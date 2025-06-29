@@ -1484,12 +1484,7 @@
           "default": "specification"
         },
         "custom_claims": {
-          "patternProperties": {
-            ".*": {
-              "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaim"
-            }
-          },
-          "type": "object",
+          "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaims",
           "title": "Custom Claims",
           "description": "The custom claims available in this policy in addition to the Standard Claims."
         }
@@ -1552,9 +1547,11 @@
             "enum": [
               "openid",
               "offline_access",
-              "groups",
-              "email",
               "profile",
+              "email",
+              "address",
+              "phone",
+              "groups",
               "authelia.bearer.authz"
             ]
           },
@@ -1679,6 +1676,7 @@
         "pkce_challenge_method": {
           "type": "string",
           "enum": [
+            "",
             "plain",
             "S256"
           ],
@@ -2296,6 +2294,11 @@
     },
     "IdentityProvidersOpenIDConnectCustomClaim": {
       "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "The name of claim."
+        },
         "attribute": {
           "type": "string",
           "title": "Attribute",
@@ -2303,6 +2306,14 @@
         }
       },
       "additionalProperties": false,
+      "type": "object"
+    },
+    "IdentityProvidersOpenIDConnectCustomClaims": {
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaim"
+        }
+      },
       "type": "object"
     },
     "IdentityProvidersOpenIDConnectLifespan": {
@@ -4395,6 +4406,16 @@
           "title": "Enabled",
           "description": "Enables the use of the WebAuthn Metadata Service.",
           "default": false
+        },
+        "cache_policy": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "relaxed"
+          ],
+          "title": "Cache Policy",
+          "description": "WebAuthn Authenticator metadata cache policy.",
+          "default": "strict"
         },
         "validate_trust_anchor": {
           "type": "boolean",

@@ -25,7 +25,7 @@ seo:
 - [MinIO]
   - [2025-04-22T22-12-26Z](https://github.com/minio/minio/releases/tag/RELEASE.2025-04-22T22-12-26Z)
 
-{{% oidc-common %}}
+{{% oidc-common bugs="claims-hydration" %}}
 
 ### Assumptions
 
@@ -44,6 +44,12 @@ Some of the values presented in this guide can automatically be replaced with do
 
 ### Authelia
 
+{{< callout context="caution" title="Important Note" icon="outline/alert-triangle" >}}
+At the time of this writing this third party client has a bug and does not support [OpenID Connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html). This
+configuration will likely require configuration of an escape hatch to work around the bug on their end. See
+[Configuration Escape Hatch](#configuration-escape-hatch) for details.
+{{< /callout >}}
+
 The following YAML configuration is an example __Authelia__ [client configuration] for use with [MinIO] which will
 operate with the application example:
 
@@ -58,6 +64,8 @@ identity_providers:
         client_secret: '$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng'  # The digest of 'insecure_secret'.
         public: false
         authorization_policy: 'two_factor'
+        require_pkce: false
+        pkce_challenge_method: ''
         redirect_uris:
           - 'https://minio.{{< sitevar name="domain" nojs="example.com" >}}/oauth_callback'
         scopes:
@@ -65,9 +73,18 @@ identity_providers:
           - 'profile'
           - 'email'
           - 'groups'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_basic'
 ```
+
+#### Configuration Escape Hatch
+
+{{% oidc-escape-hatch-claims-hydration client_id="minio" %}}
 
 ### Application
 

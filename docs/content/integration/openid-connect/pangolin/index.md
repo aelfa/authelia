@@ -25,7 +25,7 @@ seo:
 - [Pangolin]
   - [v1.3.1](https://github.com/fosrl/pangolin/releases/tag/1.3.1)
 
-{{% oidc-common %}}
+{{% oidc-common bugs="claims-hydration" %}}
 
 ### Assumptions
 
@@ -43,7 +43,11 @@ Some of the values presented in this guide can automatically be replaced with do
 
 ### Authelia
 
-{{% oidc-conformance-claims %}}
+{{< callout context="caution" title="Important Note" icon="outline/alert-triangle" >}}
+At the time of this writing this third party client has a bug and does not support [OpenID Connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html). This
+configuration will likely require configuration of an escape hatch to work around the bug on their end. See
+[Configuration Escape Hatch](#configuration-escape-hatch) for details.
+{{< /callout >}}
 
 The following YAML configuration is an example __Authelia__ [client configuration] for use with [Pangolin] which will
 operate with the application example:
@@ -67,9 +71,18 @@ identity_providers:
           - 'openid'
           - 'profile'
           - 'email'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_basic'
 ```
+
+#### Configuration Escape Hatch
+
+{{% oidc-escape-hatch-claims-hydration client_id="pangolin" %}}
 
 ### Application
 
