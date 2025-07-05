@@ -25,7 +25,7 @@ seo:
 - [Apache Guacamole]
   - [v1.5.5](https://guacamole.apache.org/releases/1.5.5/)
 
-{{% oidc-common %}}
+{{% oidc-common bugs="claims-hydration" %}}
 
 ### Assumptions
 
@@ -43,6 +43,12 @@ Some of the values presented in this guide can automatically be replaced with do
 
 ### Authelia
 
+{{< callout context="caution" title="Important Note" icon="outline/alert-triangle" >}}
+At the time of this writing this third party client has a bug and does not support [OpenID Connect 1.0](https://openid.net/specs/openid-connect-core-1_0.html). This
+configuration will likely require configuration of an escape hatch to work around the bug on their end. See
+[Configuration Escape Hatch](#configuration-escape-hatch) for details.
+{{< /callout >}}
+
 The following YAML configuration is an example __Authelia__ [client configuration] for use with [Apache Guacamole] which
 will operate with the application example:
 
@@ -56,6 +62,8 @@ identity_providers:
         client_name: 'Apache Guacamole'
         public: true
         authorization_policy: 'two_factor'
+        require_pkce: false
+        pkce_challenge_method: ''
         redirect_uris:
           - 'https://guacamole.{{< sitevar name="domain" nojs="example.com" >}}'
         scopes:
@@ -67,8 +75,14 @@ identity_providers:
           - 'id_token'
         grant_types:
           - 'implicit'
+        access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_basic'
 ```
+
+#### Configuration Escape Hatch
+
+{{% oidc-escape-hatch-claims-hydration client_id="bookstack" claims="email" %}}
 
 ### Application
 

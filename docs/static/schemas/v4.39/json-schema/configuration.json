@@ -1484,12 +1484,7 @@
           "default": "specification"
         },
         "custom_claims": {
-          "patternProperties": {
-            ".*": {
-              "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaim"
-            }
-          },
-          "type": "object",
+          "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaims",
           "title": "Custom Claims",
           "description": "The custom claims available in this policy in addition to the Standard Claims."
         }
@@ -1552,9 +1547,11 @@
             "enum": [
               "openid",
               "offline_access",
-              "groups",
-              "email",
               "profile",
+              "email",
+              "address",
+              "phone",
+              "groups",
               "authelia.bearer.authz"
             ]
           },
@@ -1679,6 +1676,7 @@
         "pkce_challenge_method": {
           "type": "string",
           "enum": [
+            "",
             "plain",
             "S256"
           ],
@@ -2296,6 +2294,11 @@
     },
     "IdentityProvidersOpenIDConnectCustomClaim": {
       "properties": {
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "The name of claim."
+        },
         "attribute": {
           "type": "string",
           "title": "Attribute",
@@ -2303,6 +2306,14 @@
         }
       },
       "additionalProperties": false,
+      "type": "object"
+    },
+    "IdentityProvidersOpenIDConnectCustomClaims": {
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/$defs/IdentityProvidersOpenIDConnectCustomClaim"
+        }
+      },
       "type": "object"
     },
     "IdentityProvidersOpenIDConnectLifespan": {
@@ -3023,7 +3034,7 @@
         "disable_require_tls": {
           "type": "boolean",
           "title": "Disable Require TLS",
-          "description": "Disables the requirement to use TLS.",
+          "description": "Disables the requirement to use TLS. This means security critical information and SMTP auth credentials will be sent in the clear due to an unencrypted connection. While this option exists, we heavily discourage it and do not support it.",
           "default": false
         },
         "disable_html_emails": {
@@ -4396,6 +4407,16 @@
           "description": "Enables the use of the WebAuthn Metadata Service.",
           "default": false
         },
+        "cache_policy": {
+          "type": "string",
+          "enum": [
+            "strict",
+            "relaxed"
+          ],
+          "title": "Cache Policy",
+          "description": "WebAuthn Authenticator metadata cache policy.",
+          "default": "strict"
+        },
         "validate_trust_anchor": {
           "type": "boolean",
           "title": "Validate Trust Anchor",
@@ -4479,6 +4500,7 @@
         "attachment": {
           "type": "string",
           "enum": [
+            "",
             "platform",
             "cross-platform"
           ],
